@@ -1,4 +1,4 @@
-import { CategoryModul } from '@/interface/category_modul';
+import { CategoryModul } from '@/interface/dummy-category-modul.interface';
 
 export type Role = {
   id: number;

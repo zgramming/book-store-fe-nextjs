@@ -14,7 +14,6 @@ interface Daum {
 interface Modul {
   code: number;
   name: string;
-  prefix: string;
   order: number;
   icon?: string;
   menus: AuthenticationAccessMenu[];

@@ -6,12 +6,12 @@ import { AuthenticationLoginEntity } from './entities/authentication-login.entit
 import { http } from '@/utils/http';
 
 const url = {
-  base: '/authentication',
+  base: '/auth',
 };
 
 const hooks = {
   useGetAccess: () => {
-    const uri = `${url.base}/access`;
+    const uri = `${url.base}/accessible-content`;
     const {
       data: response,
       error,

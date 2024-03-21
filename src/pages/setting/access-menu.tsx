@@ -1,5 +1,5 @@
 import AdminLayout from '@/components/layout/AdminLayout';
-import { MenuV2, ModulV2 } from '@/interface/category_modul';
+import { MenuV2, ModulV2 } from '@/interface/dummy-category-modul.interface';
 import { availableAccessAction } from '@/utils/constant';
 import { dummmyModulAndMenuV2, dummyRole } from '@/utils/dummy_data';
 import {

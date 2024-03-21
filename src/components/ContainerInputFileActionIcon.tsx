@@ -1,7 +1,7 @@
 import { ActionIcon, Center, Grid, Group, Modal, ScrollArea, Stack } from '@mantine/core';
 import Image from 'next/image';
 import { ReactNode, useEffect, useState } from 'react';
-import UnknownFileImage from '@images/unknown-file.png';
+import UnknownFileImage from '@/images/unknown-file.png';
 import { useDisclosure } from '@mantine/hooks';
 import { IconEye } from '@tabler/icons-react';
 

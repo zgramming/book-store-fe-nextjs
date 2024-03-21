@@ -2,32 +2,15 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useForm } from '@mantine/form';
-import Logo from '@images/logo.png';
 import { Button, Checkbox, Group, PasswordInput, Stack, TextInput } from '@mantine/core';
-import BGLogin from '@images/bg-login.png';
 import { getErrorMessageAxios } from '@/utils/function';
 import { notifications } from '@mantine/notifications';
+import BGLogin from '@/images/bg-login.png';
+import { AuthenticationRepository } from '@/features/authentication/authentication.repository';
+import { useContext } from 'react';
+import { AuthenticationContext } from '@/context/AuthenticationContext';
 
 export default function Page() {
-  const { push } = useRouter();
-
-  const onSubmit = async (values: any) => {
-    try {
-      console.log({
-        username: values.username,
-        password: values.password,
-      });
-      push('/');
-    } catch (e) {
-      const message = getErrorMessageAxios(e);
-      notifications.show({
-        title: 'Error',
-        message,
-        color: 'red',
-      });
-    }
-  };
-
   const form = useForm({
     initialValues: {
       username: '',
@@ -49,6 +32,42 @@ export default function Page() {
     },
   });
 
+  const { push } = useRouter();
+  const { setToken } = useContext(AuthenticationContext);
+
+  const onSubmit = async (values: any) => {
+    console.log(values);
+
+    const dataLogin: any = {
+      username: values.username,
+      password: values.password,
+    };
+
+    try {
+      console.log({ dataLogin });
+
+      const response = await AuthenticationRepository.api.login(dataLogin);
+      const data = response.data;
+      const { token } = data;
+      if (!token) {
+        throw new Error('Login Invalid, Token not found');
+      }
+
+      // // Set Cookie
+      setToken(token);
+
+      push('/');
+    } catch (e) {
+      const message = getErrorMessageAxios(e);
+      notifications.show({
+        title: 'Error',
+        message: message,
+        color: 'red',
+        autoClose: 5000,
+      });
+    }
+  };
+
   return (
     <>
       <Head>
@@ -56,16 +75,6 @@ export default function Page() {
         <meta name="description" content="Login" />
       </Head>
       <div className="flex flex-col items-stretch min-h-screen">
-        <div
-          className={`
-        h-20 w-full shadow-md px-5
-        lg:px-20
-        `}
-        >
-          <div className="flex items-center justify-start w-full h-full ">
-            <Image src={Logo} alt="Logo" width={200} />
-          </div>
-        </div>
         <div className="grow bg-white flex flex-row">
           <div
             className={`
@@ -97,7 +106,7 @@ export default function Page() {
               lg:pb-3 lg:text-left lg:text-4xl
             `}
             >
-              Masuk Agen Pegadaian
+              Masuk Sistem Aplikasi
             </div>
             <div
               className={`
@@ -105,28 +114,30 @@ export default function Page() {
               lg:pb-10 lg:text-xl lg:text-left
             `}
             >
-              Mengatasi Masalah tanpa Masalah
+              Silahkan masukkan username dan password anda
             </div>
 
-            <Stack gap={'lg'}>
-              <Stack gap={5}>
-                <div className="text-base font-medium lg:text-xl">Username</div>
-                <TextInput placeholder="Username" {...form.getInputProps('username')} />
-              </Stack>
-              <Stack gap={5}>
-                <div className="text-base font-medium lg:text-xl">Password</div>
-                <PasswordInput placeholder="Username" {...form.getInputProps('password')} />
-              </Stack>
-              <Group justify="apart">
-                <Checkbox label="Remember Me" {...form.getInputProps('remember')} />
-                <Button variant="subtle" color="gray">
-                  Forgot Password
+            <form onSubmit={form.onSubmit(onSubmit)}>
+              <Stack gap={'lg'}>
+                <Stack gap={5}>
+                  <div className="text-base font-medium lg:text-xl">Username</div>
+                  <TextInput placeholder="Username" {...form.getInputProps('username')} />
+                </Stack>
+                <Stack gap={5}>
+                  <div className="text-base font-medium lg:text-xl">Password</div>
+                  <PasswordInput placeholder="Password" {...form.getInputProps('password')} />
+                </Stack>
+                <Group justify="apart">
+                  <Checkbox label="Remember Me" {...form.getInputProps('remember')} />
+                  <Button variant="subtle" color="gray">
+                    Forgot Password
+                  </Button>
+                </Group>
+                <Button type="submit" variant="filled" size="lg" fullWidth>
+                  Masuk
                 </Button>
-              </Group>
-              <Button variant="filled" size="lg" fullWidth onClick={onSubmit}>
-                Masuk
-              </Button>
-            </Stack>
+              </Stack>
+            </form>
           </div>
         </div>
       </div>

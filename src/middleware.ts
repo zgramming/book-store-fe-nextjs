@@ -10,24 +10,24 @@ const excludePathCheckingToken = (path: string) => {
 };
 
 function middleware(request: NextRequest) {
-  // const url = request.nextUrl.pathname;
-  // const accessToken = request.cookies.get(TOKEN_KEY);
+  const url = request.nextUrl.pathname;
+  const accessToken = request.cookies.get(TOKEN_KEY);
 
-  // const startWithLogin = url.startsWith('/login');
-  // const isHaveToken = accessToken !== undefined;
+  const startWithLogin = url.startsWith('/login');
+  const isHaveToken = accessToken !== undefined;
 
-  // // Aktifkan jika ingin menggunakan auth
-  // if (isHaveToken) {
-  //   if (startWithLogin) {
-  //     return NextResponse.redirect(new URL('/', request.url));
-  //   }
-  // } else {
-  //   const isAccessingProtectedPage = !excludePathCheckingToken(url);
+  // Aktifkan jika ingin menggunakan auth
+  if (isHaveToken) {
+    if (startWithLogin) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  } else {
+    const isAccessingProtectedPage = !excludePathCheckingToken(url);
 
-  //   if (isAccessingProtectedPage) {
-  //     return NextResponse.redirect(new URL('/login', request.url));
-  //   }
-  // }
+    if (isAccessingProtectedPage) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
 
   return NextResponse.next();
 }

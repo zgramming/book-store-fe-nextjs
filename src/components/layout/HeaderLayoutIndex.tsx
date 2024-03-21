@@ -1,4 +1,4 @@
-import Logo from '@images/logo.png';
+import Logo from '@/images/logo.png';
 import Image from 'next/image';
 import Link from 'next/link';
 import AccountAvatar from '../AccountAvatar';
