@@ -1,54 +1,47 @@
 import ContainerInputFileActionIcon from '@/components/ContainerInputFileActionIcon';
 import AdminLayout from '@/components/layout/AdminLayout';
-import { IMasterIconCreateOrUpdateForm } from '@/features/setting/master_icon/dto/master_icon_create_update.dto';
-import { FileRepository } from '@/features/common/file/file.repository';
-import { MasterIconRepository } from '@/features/setting/master_icon/master_icon.repository';
-import { baseFileURL } from '@/utils/constant';
+import { AuthenticationContext } from '@/context/AuthenticationContext';
+import { MasterIconRepository } from '@/features/master-icon/master-icon.repository';
 import { getErrorMessageAxios } from '@/utils/function';
-import { Stack, Card, TextInput, FileInput, Group, Button } from '@mantine/core';
+import { Stack, Card, TextInput, FileInput, Group, Button, Radio } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconUpload } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useContext, useEffect } from 'react';
 
 export default function Page() {
+  const { jwtPayload } = useContext(AuthenticationContext);
   const { back, query } = useRouter();
   const { id, action } = query;
 
-  const { data: dataMasterIcon } = MasterIconRepository.hooks.useDetailMasterIcon(id as string | undefined);
-  const [previewImage, setPreviewImage] = useState<File | string | null>(null);
+  const { data: dataMasterIcon } = MasterIconRepository.hooks.useById(id as string | undefined);
   const form = useForm({
     initialValues: {
-      kode: '',
-      nama: '',
-      file: null as any,
+      name: '',
+      code: '',
+      status: 'active',
+      icon: undefined as any,
     },
     validate: {
-      kode: (value) => (value ? undefined : 'Kode tidak boleh kosong'),
-      nama: (value) => (value ? undefined : 'Nama tidak boleh kosong'),
+      name: (value) => (value.trim().length > 0 ? null : 'Nama tidak boleh kosong'),
+      code: (value) => (value.trim().length > 0 ? null : 'Kode tidak boleh kosong'),
+      status: (value) => (value.trim().length > 0 ? null : 'Status tidak boleh kosong'),
     },
   });
   const { setFieldValue } = form;
 
   useEffect(() => {
     if (dataMasterIcon) {
-      setFieldValue('kode', dataMasterIcon.kode_icon);
-      setFieldValue('nama', dataMasterIcon.nama_icon);
-      setPreviewImage(`${baseFileURL}/${dataMasterIcon.url_icon}`);
+      setFieldValue('name', dataMasterIcon.name);
+      setFieldValue('code', dataMasterIcon.code);
+      setFieldValue('status', dataMasterIcon.status);
     }
     return () => {};
   }, [dataMasterIcon, setFieldValue]);
 
-  const onUpload = async (file: File | null) => {
-    setPreviewImage(file);
-    setFieldValue('file', file);
-  };
-
   const onCreate = async (values: any) => {
-    const { kode, nama, file } = values;
-
-    if (!file) {
+    if (!values.icon) {
       notifications.show({
         title: 'Terjadi kesalahan',
         message: 'File tidak boleh kosong',
@@ -57,18 +50,13 @@ export default function Page() {
       return;
     }
 
-    const formDataFile = new FormData();
-    formDataFile.append('file', file);
-    const upload = await FileRepository.api.upload(formDataFile);
-    const nameFile = upload.filename;
-
-    const body: IMasterIconCreateOrUpdateForm = {
-      nama_icon: nama,
-      kode_icon: kode,
-      url_icon: nameFile,
-    };
-
-    await MasterIconRepository.api.create(body);
+    await MasterIconRepository.api.create({
+      name: values.name,
+      code: values.code,
+      status: values.status,
+      icon: values.icon,
+      created_by: jwtPayload?.userId || 0,
+    });
 
     notifications.show({
       title: 'Berhasil',
@@ -79,22 +67,15 @@ export default function Page() {
   };
 
   const onUpdate = async (values: any) => {
-    const { kode, nama, file } = values;
+    if (!dataMasterIcon) return;
 
-    const body: IMasterIconCreateOrUpdateForm = {
-      nama_icon: nama,
-      kode_icon: kode,
-    };
-
-    if (file) {
-      const formDataFile = new FormData();
-
-      formDataFile.append('file', file);
-      const upload = await FileRepository.api.upload(formDataFile);
-      const nameFile = upload.filename;
-      body.url_icon = nameFile;
-    }
-    await MasterIconRepository.api.update(Number(id), body);
+    await MasterIconRepository.api.update(`${dataMasterIcon.id}`, {
+      name: values.name,
+      code: values.code,
+      status: values.status,
+      icon: values.icon,
+      updated_by: jwtPayload?.userId || 0,
+    });
 
     notifications.show({
       title: 'Berhasil',
@@ -127,7 +108,7 @@ export default function Page() {
 
   return (
     <>
-      <form onSubmit={form.onSubmit(onSubmit)}>
+      <form onSubmit={form.onSubmit(onSubmit)} encType="multipart/form-data">
         <Stack gap={'xl'}>
           <Card withBorder>
             <Group justify="right">
@@ -142,8 +123,8 @@ export default function Page() {
               Form
             </Card.Section>
             <Stack gap={'md'}>
-              <TextInput label="Kode" placeholder="Kode" {...form.getInputProps('kode')} />
-              <TextInput label="Nama" placeholder="Nama" {...form.getInputProps('nama')} />
+              <TextInput label="Kode" placeholder="Kode" {...form.getInputProps('code')} />
+              <TextInput label="Nama" placeholder="Nama" {...form.getInputProps('name')} />
               <ContainerInputFileActionIcon
                 input={
                   <FileInput
@@ -151,12 +132,17 @@ export default function Page() {
                     placeholder="File"
                     rightSection={<IconUpload />}
                     accept="image/png, image/jpeg, image/jpg"
-                    {...form.getInputProps('file')}
-                    onChange={onUpload}
+                    {...form.getInputProps('icon')}
                   />
                 }
-                previewFile={previewImage}
+                previewFile={dataMasterIcon?.icon_url}
               />
+              <Radio.Group name="status" label="Status" withAsterisk {...form.getInputProps('status')}>
+                <Group>
+                  <Radio value="active" label="Aktif" />
+                  <Radio value="inactive" label="Tidak Aktif" />
+                </Group>
+              </Radio.Group>
             </Stack>
           </Card>
         </Stack>

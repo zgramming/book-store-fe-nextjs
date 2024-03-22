@@ -1,6 +1,6 @@
 import PaginationComponent, { PaginationSize } from '@/components/PaginationComponent';
 import AdminLayout from '@/components/layout/AdminLayout';
-import { MasterIconRepository } from '@/features/setting/master_icon/master_icon.repository';
+import { MasterIconRepository } from '@/features/master-icon/master-icon.repository';
 import { getErrorMessageAxios } from '@/utils/function';
 import { Button, Card, Flex, Grid, Group, Stack, Table, TextInput } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
@@ -20,7 +20,7 @@ export default function Page() {
   const [sizePagination, setSizePagination] = useState<PaginationSize>('10');
   const [searchQuery, setSearchQuery] = useDebouncedState<string | undefined>(undefined, 500);
 
-  const { items: dataMasterIcon, mutate } = MasterIconRepository.hooks.useListMasterIcon({
+  const { items: dataMasterIcon, mutate } = MasterIconRepository.hooks.useList({
     page: activePagination,
     pageSize: Number(sizePagination),
     namaIcon: searchQuery,
@@ -38,21 +38,19 @@ export default function Page() {
 
   const onAddButton = () => {
     push({
-      pathname: 'master-icon/form',
-      query: { action: 'add' },
+      pathname: 'master-icon/form/new',
     });
   };
 
-  const onEditButton = (id: number) => {
+  const onEditButton = (id: string) => {
     push({
-      pathname: 'master-icon/form',
-      query: { id: id, action: 'edit' },
+      pathname: `master-icon/form/${id}`,
     });
   };
 
-  const onDeleteHandler = async (id: number) => {
+  const onDeleteHandler = async (id: string) => {
     try {
-      await MasterIconRepository.api.delete(id);
+      await MasterIconRepository.api.delete(`${id}`);
       notifications.show({
         title: 'Berhasil',
         message: 'Data berhasil dihapus',
@@ -69,7 +67,7 @@ export default function Page() {
     }
   };
 
-  const onDeleteButton = (id: number) => {
+  const onDeleteButton = (id: string) => {
     modals.openConfirmModal({
       title: 'Konfirmasi',
       children: 'Apakah anda yakin ingin menghapus data ini?',
@@ -134,19 +132,21 @@ export default function Page() {
                     <Table.Th>NO</Table.Th>
                     <Table.Th>KODE</Table.Th>
                     <Table.Th>NAMA</Table.Th>
+                    <Table.Th>ICON</Table.Th>
                     <Table.Th>KONTROL</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <tbody>
                   {dataMasterIcon.map((item, index) => {
                     return (
-                      <Table.Tr key={item.id_inc}>
+                      <Table.Tr key={item.id}>
                         <Table.Td>{index + 1}</Table.Td>
-                        <Table.Td>{item.kode_icon}</Table.Td>
-                        <Table.Td>{item.nama_icon}</Table.Td>
+                        <Table.Td>{item.code}</Table.Td>
+                        <Table.Td>{item.name}</Table.Td>
+                        <Table.Td>{item.icon_url}</Table.Td>
                         <Table.Td>
                           <Group>
-                            <Button variant="outline" size="xs" color="blue" onClick={() => onEditButton(item.id_inc)}>
+                            <Button variant="outline" size="xs" color="blue" onClick={() => onEditButton(`${item.id}`)}>
                               Edit
                             </Button>
                             <Button
@@ -154,7 +154,7 @@ export default function Page() {
                               size="xs"
                               color="red"
                               onClick={() => {
-                                onDeleteButton(item.id_inc);
+                                onDeleteButton(`${item.id}`);
                               }}
                             >
                               Hapus
