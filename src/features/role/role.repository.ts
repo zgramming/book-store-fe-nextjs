@@ -2,7 +2,6 @@ import { IBaseQueryParams } from '@/interface/base_query_params.interface';
 import useSWR from 'swr';
 import { RoleEntity } from './entities/role.entity';
 import { http } from '@/utils/http';
-import { RoleForAppModulEntity } from './entities/role-for-app-modul.entity';
 import { RoleForAppMenuEntity } from './entities/role-for-app-menu.entity';
 import { RoleDetailEntity } from './entities/role-detail.entity';
 import { RoleCreateDTO } from './dto/role-create.dto';
@@ -18,7 +17,6 @@ interface UseListRoleForAppMenuProps {
 
 const url = {
   base: '/role',
-  basedForAppModul: (id: string) => `/role/for_app_module/${id}`,
   basedForAppMenu: (id: string, categoryId?: string) => {
     let url = `/role/for_app_menu/${id}`;
 
@@ -45,18 +43,6 @@ const hooks = {
     return {
       total: response?.total ?? 0,
       data: data ?? [],
-      error,
-      isLoading,
-      isValidating,
-      mutate,
-    };
-  },
-  useListForAppModul: (roleId?: string) => {
-    const uri = roleId ? url.basedForAppModul(roleId) : null;
-    const { data: response, error, isLoading, isValidating, mutate } = useSWR<RoleForAppModulEntity>(uri, http.fetcher);
-
-    return {
-      data: response?.data,
       error,
       isLoading,
       isValidating,

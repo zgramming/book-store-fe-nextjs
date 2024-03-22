@@ -2,10 +2,10 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import { Badge, Button, Card, Flex, Grid, Group, Stack, Table, TextInput } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import { useState } from 'react';
-import { GroupRepository } from '@/features/setting/group/group.repository';
 import PaginationComponent, { PaginationSize } from '@/components/PaginationComponent';
 import { useRouter } from 'next/router';
 import { useDebouncedState } from '@mantine/hooks';
+import { RoleRepository } from '@/features/role/role.repository';
 
 Page.getLayout = function getLayout(page: any) {
   return <AdminLayout title="Akses Modul">{page}</AdminLayout>;
@@ -17,7 +17,7 @@ export default function Page() {
   const [paginationSize, setPaginationSize] = useState<PaginationSize>('10');
   const [searchQuery, setSearchQuery] = useDebouncedState<string | undefined>(undefined, 500);
 
-  const { data: dataGroup, total } = GroupRepository.hooks.useListgroup({
+  const { data: dataGroup, total } = RoleRepository.hooks.useList({
     page: activePagination,
     pageSize: Number(paginationSize),
     search: searchQuery,
@@ -33,13 +33,9 @@ export default function Page() {
     }
   };
 
-  const onEdit = (kodeGroup: string) => {
+  const onEdit = (roleId: string) => {
     push({
-      pathname: 'access-modul/form',
-      query: {
-        action: 'edit',
-        id: kodeGroup,
-      },
+      pathname: `access-modul/form/${roleId}`,
     });
   };
 
@@ -93,14 +89,14 @@ export default function Page() {
                   </Table.Tr>
                 </Table.Thead>
                 <tbody>
-                  {dataGroup.map((item: any, index: number) => {
+                  {dataGroup.map((item, index: number) => {
                     return (
-                      <Table.Tr key={item.kodeGroup}>
+                      <Table.Tr key={item.id}>
                         <Table.Td>{index + 1}</Table.Td>
-                        <Table.Td>{item.kodeGroup}</Table.Td>
-                        <Table.Td>{item.namaGroup}</Table.Td>
+                        <Table.Td>{item.code}</Table.Td>
+                        <Table.Td>{item.name}</Table.Td>
                         <Table.Td>
-                          {item.statusGroup ? (
+                          {item.status == 'active' ? (
                             <Badge color="green">Aktif</Badge>
                           ) : (
                             <Badge color="red">Tidak Aktif</Badge>
@@ -108,7 +104,7 @@ export default function Page() {
                         </Table.Td>
                         <Table.Td>
                           <Group gap={'xs'}>
-                            <Button variant="outline" size="xs" color="blue" onClick={() => onEdit(item.kodeGroup)}>
+                            <Button variant="outline" size="xs" color="blue" onClick={() => onEdit(`${item.id}`)}>
                               Edit
                             </Button>
                           </Group>
