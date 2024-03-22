@@ -1,5 +1,5 @@
 export interface IJWTPayload {
-  userId: string;
+  userId: number;
   username: string;
   roleId: string;
   sub?: number;
