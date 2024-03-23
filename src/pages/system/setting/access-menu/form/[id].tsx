@@ -1,6 +1,7 @@
 import AdminLayout from '@/components/layout/AdminLayout';
 import { AuthenticationContext } from '@/context/AuthenticationContext';
 import { AccessMenuRepository } from '@/features/access-menu/access-menu.repository';
+import { AccessMenuCreateDTO } from '@/features/access-menu/dto/access-menu-create.dto';
 import { AccessibleModul } from '@/features/access-menu/entities/access-menu-by-role-and-category-modul.entity';
 import { CategoryModulRepository } from '@/features/category-modul/category-modul.repository';
 import { RoleRepository } from '@/features/role/role.repository';
@@ -36,8 +37,18 @@ interface AccessModulItemProps {
   form: any;
   item: AccessibleModul;
 }
+interface MappingAccessMenu {
+  app_category_modul_id: string;
+  app_modul_id: string;
+  app_menu_id: string;
+  role_id: string;
+  permission: string;
+}
 
 const delimiter = '|||';
+const combinationValue = (appCategoryModulId: string, appModulId: string, appMenuId: string, permission: string) => {
+  return `${appCategoryModulId}${delimiter}${appModulId}${delimiter}${appMenuId}${delimiter}${permission}`;
+};
 
 Page.getLayout = (page: ReactNode) => <AdminLayout title="Form Access Menu">{page}</AdminLayout>;
 
@@ -69,7 +80,13 @@ function AccessModulItem({ item, form }: AccessModulItemProps) {
                   >
                     <Group mt="xs">
                       {availableAccessAction.map((access) => {
-                        const value = `${menu.id}${delimiter}${access}`;
+                        // Format combination : AppCategoryModulId|||AppModulId|||AppMenuId|||Permission
+                        const value = combinationValue(
+                          `${menu.app_category_modul_id}`,
+                          `${menu.app_modul_id}`,
+                          `${menu.id}`,
+                          access,
+                        );
                         return <Checkbox key={value} value={value} label={access.toUpperCase()} />;
                       })}
                     </Group>
@@ -106,10 +123,7 @@ export default function Page() {
     page: 1,
     pageSize: 100,
   });
-  // const { data: dataSelectedGroup, isLoading: isLoadingSelectedGroup } = GroupRepository.hooks.useListgroupForAppMenu({
-  //   id: id as string | undefined,
-  //   categoryId,
-  // });
+
   const { data: dataAccessMenu, isLoading: isLoadingAccessMenu } = AccessMenuRepository.hooks.useByRoleAndCategoryModul(
     id as string | undefined,
     categoryId,
@@ -129,44 +143,51 @@ export default function Page() {
         return;
       }
 
-      const mappingAccess: {
-        app_menu_id: string;
-        role_id: string;
-        permission: string;
-      }[] = values.access.map((item: string) => {
-        const [idMenu, permission] = item.split('|||');
+      const mappingAccess: MappingAccessMenu[] = values.access.map((item: string) => {
+        const [AppCategoryModulId, AppModulId, AppMenuId, permission] = item.split('|||');
         return {
-          app_menu_id: idMenu,
+          app_category_modul_id: AppCategoryModulId,
+          app_modul_id: AppModulId,
+          app_menu_id: AppMenuId,
           role_id: dataGroup.id,
           permission,
         };
       });
 
-      const groupingAccessByMenuId: {
-        [key: string]: {
-          app_menu_id: string;
-          role_id: string;
-          permission: string;
-        }[];
+      const groupingAccessByCombination: {
+        [key: string]: MappingAccessMenu[];
       } = {};
 
       mappingAccess.forEach((item) => {
-        if (!groupingAccessByMenuId[item.app_menu_id]) {
-          groupingAccessByMenuId[item.app_menu_id] = [];
+        const value = combinationValue(
+          item.app_category_modul_id,
+          item.app_modul_id,
+          item.app_menu_id,
+          item.permission,
+        );
+        if (!groupingAccessByCombination[value]) {
+          groupingAccessByCombination[value] = [];
         }
 
-        groupingAccessByMenuId[item.app_menu_id].push(item);
+        groupingAccessByCombination[value].push(item);
       });
 
-      const mappingGroupedAccess = Object.keys(groupingAccessByMenuId).map((menuId) => {
-        const permissions = mappingAccess.filter((item) => item.app_menu_id === menuId).map((item) => item.permission);
-        return {
-          app_menu_id: +menuId,
-          role_id: dataGroup.id,
-          permissions,
-          created_by: jwtPayload?.userId ?? 0,
-        };
-      });
+      const mappingGroupedAccess: AccessMenuCreateDTO[] = Object.keys(groupingAccessByCombination).map(
+        (combination) => {
+          const [appCategoryModulId, appModulId, menuId] = combination.split(delimiter);
+          const permissions = mappingAccess
+            .filter((item) => item.app_menu_id === menuId)
+            .map((item) => item.permission);
+          return {
+            app_category_modul_id: +appCategoryModulId,
+            app_modul_id: +appModulId,
+            app_menu_id: +menuId,
+            role_id: dataGroup.id,
+            permissions,
+            created_by: jwtPayload?.userId ?? 0,
+          };
+        },
+      );
 
       await AccessMenuRepository.api.create(mappingGroupedAccess);
 
@@ -205,6 +226,8 @@ export default function Page() {
       const selectedAccessMenu = dataAccessMenu.selectedAccessMenu;
       const groupedAccessByMenuId: {
         [key: string]: {
+          app_category_modul_id: string;
+          app_modul_id: string;
           app_menu_id: string;
           role_id: string;
           permissions: string[];
@@ -212,12 +235,16 @@ export default function Page() {
       } = {};
 
       selectedAccessMenu.forEach((item) => {
-        if (!groupedAccessByMenuId[item.app_menu_id]) {
-          groupedAccessByMenuId[item.app_menu_id] = [];
+        const menuId = `${item.app_menu_id}`;
+
+        if (!groupedAccessByMenuId[menuId]) {
+          groupedAccessByMenuId[menuId] = [];
         }
 
-        groupedAccessByMenuId[item.app_menu_id].push({
-          app_menu_id: `${item.app_menu_id}`,
+        groupedAccessByMenuId[menuId].push({
+          app_category_modul_id: `${item.app_category_modul_id}`,
+          app_modul_id: `${item.app_modul_id}`,
+          app_menu_id: `${menuId}`,
           permissions: item.permissions,
           role_id: `${item.role_id}`,
         });
@@ -225,20 +252,17 @@ export default function Page() {
 
       const arrAccess: string[] = [];
 
-      for (const [menuId, value] of Object.entries(groupedAccessByMenuId)) {
+      for (const [keyMenuId, value] of Object.entries(groupedAccessByMenuId)) {
         for (const item of value ?? []) {
           item.permissions.forEach((permission) => {
-            const access = `${menuId}${delimiter}${permission}`;
-            arrAccess.push(access);
+            const value = combinationValue(item.app_category_modul_id, item.app_modul_id, keyMenuId, permission);
+
+            arrAccess.push(value);
           });
         }
       }
 
       setFieldValue('access', arrAccess);
-
-      // setValues({
-      //   access: arrAccess,
-      // });
     }
   }, [isReady, dataAccessMenu.selectedAccessMenu, setFieldValue]);
 
