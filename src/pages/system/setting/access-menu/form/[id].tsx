@@ -70,7 +70,7 @@ function AccessModulItem({ item, form }: AccessModulItemProps) {
                     <Group mt="xs">
                       {availableAccessAction.map((access) => {
                         const value = `${menu.id}${delimiter}${access}`;
-                        return <Checkbox key={value} value={value} label={access.toUpperCase()} checked={true} />;
+                        return <Checkbox key={value} value={value} label={access.toUpperCase()} />;
                       })}
                     </Group>
                   </Checkbox.Group>
@@ -97,9 +97,8 @@ export default function Page() {
   });
   const { back, query, isReady } = useRouter();
 
-  const { id, action } = query;
-  const isEdit = action === 'edit';
-  const { setFieldValue, setValues } = form;
+  const { id } = query;
+  const { setFieldValue } = form;
 
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const { data: dataGroup } = RoleRepository.hooks.useById(id as string | undefined);
@@ -126,13 +125,6 @@ export default function Page() {
 
   const onSubmit = async (values: any) => {
     try {
-      console.log({
-        id,
-        values,
-        isEdit,
-        setFieldValue,
-      });
-
       if (!dataGroup) {
         return;
       }
@@ -150,8 +142,23 @@ export default function Page() {
         };
       });
 
-      const groupedAccessByMenuId = Object.groupBy(mappingAccess, (item) => item.app_menu_id);
-      const mappingGroupedAccess = Object.keys(groupedAccessByMenuId).map((menuId) => {
+      const groupingAccessByMenuId: {
+        [key: string]: {
+          app_menu_id: string;
+          role_id: string;
+          permission: string;
+        }[];
+      } = {};
+
+      mappingAccess.forEach((item) => {
+        if (!groupingAccessByMenuId[item.app_menu_id]) {
+          groupingAccessByMenuId[item.app_menu_id] = [];
+        }
+
+        groupingAccessByMenuId[item.app_menu_id].push(item);
+      });
+
+      const mappingGroupedAccess = Object.keys(groupingAccessByMenuId).map((menuId) => {
         const permissions = mappingAccess.filter((item) => item.app_menu_id === menuId).map((item) => item.permission);
         return {
           app_menu_id: +menuId,
@@ -180,6 +187,7 @@ export default function Page() {
     }
   };
 
+  // Set initial value
   useEffect(() => {
     if (!isReady) return;
 
@@ -188,25 +196,51 @@ export default function Page() {
       setFieldValue('name', `${dataGroup?.name}`);
     }
 
-    if (dataAccessMenu) {
-      const groupedAccessByMenuId = Object.groupBy(dataAccessMenu.selectedAccessMenu, (item) => item.app_menu_id);
+    return () => {};
+  }, [dataGroup, isReady, setFieldValue]);
 
-      const arrAccess = [];
+  // Set Selected Access Menu
+  useEffect(() => {
+    if (dataAccessMenu.selectedAccessMenu) {
+      const selectedAccessMenu = dataAccessMenu.selectedAccessMenu;
+      const groupedAccessByMenuId: {
+        [key: string]: {
+          app_menu_id: string;
+          role_id: string;
+          permissions: string[];
+        }[];
+      } = {};
+
+      selectedAccessMenu.forEach((item) => {
+        if (!groupedAccessByMenuId[item.app_menu_id]) {
+          groupedAccessByMenuId[item.app_menu_id] = [];
+        }
+
+        groupedAccessByMenuId[item.app_menu_id].push({
+          app_menu_id: `${item.app_menu_id}`,
+          permissions: item.permissions,
+          role_id: `${item.role_id}`,
+        });
+      });
+
+      const arrAccess: string[] = [];
 
       for (const [menuId, value] of Object.entries(groupedAccessByMenuId)) {
         for (const item of value ?? []) {
-          const access = `${menuId}${delimiter}${item.permissions}`;
-          arrAccess.push(access);
+          item.permissions.forEach((permission) => {
+            const access = `${menuId}${delimiter}${permission}`;
+            arrAccess.push(access);
+          });
         }
       }
 
-      setValues({
-        access: arrAccess,
-      });
-    }
+      setFieldValue('access', arrAccess);
 
-    return () => {};
-  }, [dataGroup, isReady, setFieldValue, setValues, dataAccessMenu]);
+      // setValues({
+      //   access: arrAccess,
+      // });
+    }
+  }, [isReady, dataAccessMenu.selectedAccessMenu, setFieldValue]);
 
   return (
     <>
@@ -223,7 +257,7 @@ export default function Page() {
           </Card>
           <Card withBorder>
             <Card.Section withBorder inheritPadding py={'sm'} mb={'sm'}>
-              Card Section
+              Access Menu
             </Card.Section>
             <Stack gap={'md'}>
               <TextInput placeholder="Your name" label="Group Code" disabled {...form.getInputProps('code')} />

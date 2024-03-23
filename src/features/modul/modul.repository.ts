@@ -40,7 +40,7 @@ const hooks = {
     };
   },
 
-  useByCategoryModul: (kategoriModul?: string) => {
+  useByCategoryModul: (kategoriModul?: string | null) => {
     const page = 1;
     const pageSize = kategoriModul ? 1000 : 0;
     const uri = !kategoriModul

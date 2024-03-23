@@ -43,7 +43,7 @@ export default function Page() {
         setFieldValue,
       });
       const body = {
-        master_category_parent_id: values.master_category_parent_id,
+        master_category_parent_id: values.master_category_parent_id ? values.master_category_parent_id : undefined,
         code: values.code,
         name: values.name,
         description: values.description,
@@ -81,6 +81,10 @@ export default function Page() {
     if (!isReady) return;
 
     if (dataMasterCategory) {
+      setFieldValue('code', dataMasterCategory.code);
+      setFieldValue('name', dataMasterCategory.name);
+      if (dataMasterCategory.description) setFieldValue('description', dataMasterCategory.description);
+      setFieldValue('status', dataMasterCategory.status);
     }
 
     return () => {};

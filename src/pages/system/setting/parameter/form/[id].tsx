@@ -1,15 +1,17 @@
 import AdminLayout from '@/components/layout/AdminLayout';
+import { AuthenticationContext } from '@/context/AuthenticationContext';
 import { ParameterRepository } from '@/features/parameter/parameter.repository';
 import { getErrorMessageAxios } from '@/utils/function';
 import { Stack, Card, Group, Button, Radio, TextInput, LoadingOverlay } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/router';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useContext, useEffect } from 'react';
 
 Page.getLayout = (page: ReactNode) => <AdminLayout title="Form Parameter">{page}</AdminLayout>;
 
 export default function Page() {
+  const { jwtPayload } = useContext(AuthenticationContext);
   const form = useForm({
     initialValues: {
       code: '',
@@ -58,13 +60,18 @@ export default function Page() {
       });
 
       const body = {
-        nama_parameter: values.name,
-        nilai_parameter: values.value,
-        status_parameter: values.status === 'aktif' ? true : false,
+        code: values.code,
+        name: values.name,
+        value: values.value,
+        status: values.status,
+        created_by: jwtPayload?.userId || 0,
       };
 
       if (dataParameter) {
-        await ParameterRepository.api.edit(`${dataParameter.id}`, body);
+        await ParameterRepository.api.edit(`${dataParameter.id}`, {
+          ...body,
+          updated_by: jwtPayload?.userId || 0,
+        });
       } else {
         await ParameterRepository.api.create(body);
       }
@@ -90,6 +97,7 @@ export default function Page() {
     if (!isReady) return;
 
     if (dataParameter) {
+      setFieldValue('code', dataParameter.code);
       setFieldValue('name', dataParameter.name);
       setFieldValue('value', dataParameter.value);
       setFieldValue('status', dataParameter.status);

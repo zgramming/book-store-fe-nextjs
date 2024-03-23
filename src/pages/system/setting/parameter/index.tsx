@@ -76,7 +76,7 @@ export default function Page() {
 
   const onAddHandler = () => {
     push({
-      pathname: 'parameter/form',
+      pathname: 'parameter/form/new',
     });
   };
 

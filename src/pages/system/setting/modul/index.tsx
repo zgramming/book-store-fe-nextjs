@@ -1,7 +1,7 @@
 import AdminLayout from '@/components/layout/AdminLayout';
 import { Badge, Button, Card, Grid, Group, Select, Stack, Table, TextInput } from '@mantine/core';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PaginationComponent, { PaginationSize } from '@/components/PaginationComponent';
 import { useRouter } from 'next/router';
 import { getErrorMessageAxios } from '@/utils/function';
@@ -16,11 +16,13 @@ Page.getLayout = function getLayout(page: any) {
 };
 
 export default function Page() {
-  const { push } = useRouter();
+  const { push, query, isReady } = useRouter();
+  const { category_modul_id } = query;
+
   const [activePagination, setPagination] = useState(1);
   const [paginationSize, setPaginationSize] = useState<PaginationSize>('10');
   const [searchQuery, setSearchQuery] = useDebouncedState<string | undefined>(undefined, 500);
-  const [selectedGroup, setSelectedGroup] = useState<string | undefined>(undefined);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(category_modul_id as string | null);
 
   const {
     data = [],
@@ -30,7 +32,7 @@ export default function Page() {
     page: activePagination,
     pageSize: Number(paginationSize),
     search: searchQuery,
-    categoryModulId: selectedGroup,
+    categoryModulId: selectedGroup ?? undefined,
   });
 
   const { data: groupData } = CategoryModulRepository.hooks.useList({
@@ -39,7 +41,20 @@ export default function Page() {
   });
 
   const onSelectedGroupHandler = (value: string | null) => {
-    setSelectedGroup(value || undefined);
+    if (value) {
+      setSelectedGroup(value);
+      push({
+        pathname: 'modul',
+        query: {
+          category_modul_id: value,
+        },
+      });
+    } else {
+      setSelectedGroup(null);
+      push({
+        pathname: 'modul',
+      });
+    }
   };
 
   const onChangeSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,10 +107,7 @@ export default function Page() {
 
   const onAddHandler = () => {
     push({
-      pathname: 'modul/form',
-      query: {
-        action: 'create',
-      },
+      pathname: 'modul/form/new',
     });
   };
 
@@ -104,6 +116,14 @@ export default function Page() {
       pathname: `modul/form/${id}`,
     });
   };
+
+  useEffect(() => {
+    if (!isReady) return;
+
+    if (category_modul_id) {
+      setSelectedGroup(`${category_modul_id}`);
+    }
+  }, [category_modul_id, isReady]);
 
   return (
     <>

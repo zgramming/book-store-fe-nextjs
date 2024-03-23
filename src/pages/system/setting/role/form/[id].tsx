@@ -113,21 +113,19 @@ export default function Page() {
               Card Section
             </Card.Section>
             <Stack gap={'md'}>
-              {group && (
-                <TextInput
-                  placeholder="Masukkan Kode"
-                  label="Kode"
-                  name="code"
-                  withAsterisk
-                  disabled
-                  {...form.getInputProps('code')}
-                />
-              )}
+              <TextInput
+                placeholder="Masukkan Kode"
+                label="Kode"
+                name="code"
+                withAsterisk
+                disabled={!!group}
+                {...form.getInputProps('code')}
+              />
               <TextInput placeholder="Masukan Nama" label="Nama" withAsterisk {...form.getInputProps('name')} />
               <Radio.Group name="status" label="Status" withAsterisk {...form.getInputProps('status')}>
                 <Group>
-                  <Radio value="aktif" label="Aktif" />
-                  <Radio value="tidak_aktif" label="Tidak Aktif" />
+                  <Radio value="active" label="Aktif" />
+                  <Radio value="inactive" label="Tidak Aktif" />
                 </Group>
               </Radio.Group>
             </Stack>

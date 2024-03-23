@@ -11,7 +11,6 @@ import {
   Textarea,
   Group,
   Button,
-  NumberInput,
   Radio,
   LoadingOverlay,
   Tabs,
@@ -82,8 +81,8 @@ export default function Page() {
         name: values.name,
         description: values.description,
         status: values.status,
-        master_category_id: values.master_category_id,
-        master_data_parent_id: values.master_data_parent_id,
+        master_category_id: +values.master_category_id,
+        master_data_parent_id: values.master_data_parent_id ? +values.master_data_parent_id : undefined,
         parameter1_key: values.parameter1_key,
         parameter1_value: values.parameter1_value,
         parameter2_key: values.parameter2_key,
@@ -181,25 +180,19 @@ export default function Page() {
                     nothingFoundMessage="No options"
                     searchable
                     clearable
-                    {...form.getInputProps('kode_category')}
+                    {...form.getInputProps('master_category_id')}
                   />
                   <TextInput
                     label="Kode Master Data"
                     placeholder="Kode Master Data"
-                    {...form.getInputProps('kode_master_data')}
+                    {...form.getInputProps('code')}
                   />
-                  <TextInput label="Nama" placeholder="Nama" {...form.getInputProps('nama')} />
-                  <Textarea label="Keterangan" placeholder="Keterangan" {...form.getInputProps('keterangan')} />
-                  <NumberInput
-                    placeholder="Masukkan Urutan"
-                    label="Urutan"
-                    name="order"
-                    {...form.getInputProps('order')}
-                  />
+                  <TextInput label="Nama" placeholder="Nama" {...form.getInputProps('name')} />
+                  <Textarea label="Keterangan" placeholder="Keterangan" {...form.getInputProps('description')} />
                   <Radio.Group name="status" label="Status" withAsterisk {...form.getInputProps('status')}>
                     <Group pt={'sm'}>
-                      <Radio value="aktif" label="Aktif" />
-                      <Radio value="tidak_aktif" label="Tidak Aktif" />
+                      <Radio value="active" label="Aktif" />
+                      <Radio value="inactive" label="Tidak Aktif" />
                     </Group>
                   </Radio.Group>
                 </Stack>

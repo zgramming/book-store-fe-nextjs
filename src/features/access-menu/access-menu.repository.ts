@@ -36,7 +36,7 @@ const hooks = {
 
 const api = {
   create: (data: AccessMenuCreateDTO[]) => {
-    return http.post(url.base, data, null);
+    return http.post(`${url.base}/create-bulk`, data, null);
   },
 };
 

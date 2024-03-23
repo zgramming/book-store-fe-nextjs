@@ -33,13 +33,9 @@ export default function Page() {
     }
   };
 
-  const onEdit = (kodeGroup: string) => {
+  const onEdit = (roleId: string) => {
     push({
-      pathname: 'access-menu/form',
-      query: {
-        action: 'edit',
-        id: kodeGroup,
-      },
+      pathname: `access-menu/form/${roleId}`,
     });
   };
 

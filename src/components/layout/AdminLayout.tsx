@@ -96,7 +96,7 @@ const LogoComponent = () => {
       <Image
         src={Logo}
         alt="Logo"
-        width={isMobile ? 150 : 250}
+        width={isMobile ? 50 : 100}
         style={{
           objectFit: 'cover',
         }}

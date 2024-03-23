@@ -25,19 +25,12 @@ export default function Page() {
       route: '',
       order: '1',
       status: 'active',
-
-      // kategori_modul: '',
-      // modul: '',
-      // menu_utama: undefined as string | undefined,
-      // nama: '',
-      // route: '',
-      // order: '',
-      // status: 'aktif',
     },
     validate: {
       app_category_modul_id: (value) => (value ? null : 'Kategori Modul harus diisi'),
       app_modul_id: (value) => (value ? null : 'Modul harus diisi'),
       name: (value) => (value ? null : 'Nama harus diisi'),
+      code: (value) => (value ? null : 'Kode harus diisi'),
       route: (value) => (value ? null : 'Route harus diisi'),
       order: (value) => (value ? null : 'Urutan harus diisi'),
       status: (value) => (value ? null : 'Status harus diisi'),
@@ -73,14 +66,14 @@ export default function Page() {
       });
 
       const body = {
-        app_menu_id_parent: values.app_menu_id_parent,
-        app_modul_id: values.app_modul_id,
+        app_menu_id_parent: values.app_menu_id_parent ? +values.app_menu_id_parent : undefined,
+        app_modul_id: +values.app_modul_id,
+        code: values.code,
         name: values.name,
-        order: values.order,
+        order: +values.order,
         route: values.route,
         status: values.status,
         icon_id: values.icon_id,
-        code: values.code,
         created_by: jwtPayload?.userId ?? 0,
       };
 
@@ -188,7 +181,8 @@ export default function Page() {
                 clearable
                 {...form.getInputProps('app_menu_id_parent')}
               />
-              <TextInput label="Nama" placeholder="Nama" {...form.getInputProps('nama')} />
+              <TextInput label="Kode" placeholder="Kode" {...form.getInputProps('code')} />
+              <TextInput label="Nama" placeholder="Nama" {...form.getInputProps('name')} />
               <TextInput label="Route" placeholder="Route" {...form.getInputProps('route')} />
               <NumberInput placeholder="Masukkan Urutan" label="Urutan" name="order" {...form.getInputProps('order')} />
               <Radio.Group name="status" label="Status" withAsterisk {...form.getInputProps('status')}>

@@ -80,20 +80,13 @@ export default function Page() {
 
   const onAddHandler = () => {
     push({
-      pathname: 'category-modul/form',
-      query: {
-        action: 'create',
-      },
+      pathname: 'category-modul/form/new',
     });
   };
 
   const onEditHandler = (id: string) => {
     push({
-      pathname: 'category-modul/form',
-      query: {
-        id,
-        action: 'edit',
-      },
+      pathname: `category-modul/form/${id}`,
     });
   };
 

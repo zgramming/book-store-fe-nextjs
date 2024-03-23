@@ -93,7 +93,7 @@ export default function Page() {
   const onSubmit = async (values: any) => {
     try {
       const body = {
-        role_id: values.role_id,
+        role_id: +values.role_id,
         name: values.name,
         username: values.username,
         password: values.password,
@@ -104,6 +104,7 @@ export default function Page() {
       if (userData) {
         await UserRepository.api.edit(`${userData.id}`, {
           ...body,
+          password: undefined,
           updated_by: jwtPayload?.userId ?? 0,
         });
       } else {
@@ -189,6 +190,7 @@ export default function Page() {
                     label="Password"
                     withAsterisk
                     {...form.getInputProps('password')}
+                    disabled={!!userData}
                   />
                   <Radio.Group name="status" label="Status" withAsterisk {...form.getInputProps('status')}>
                     <Group>

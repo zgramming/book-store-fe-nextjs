@@ -20,18 +20,19 @@ Page.getLayout = function getLayout(page: any) {
 export default function Page() {
   const { push, query, isReady } = useRouter();
   const { kategoriModul: queryKategoriModul, modul: queryModul } = query;
+
   const [activePagination, setPagination] = useState(1);
   const [paginationSize, setPaginationSize] = useState<PaginationSize>('100');
   const [searchQuery, setSearchQuery] = useDebouncedState<string | undefined>(undefined, 500);
-  const [selectedKategoriModul, setSelectedKategoriModul] = useState<string | undefined>(undefined);
-  const [selectedModul, setSelectedModul] = useState<string | undefined>(undefined);
+  const [selectedKategoriModul, setSelectedKategoriModul] = useState<string | null>(null);
+  const [selectedModul, setSelectedModul] = useState<string | null>(null);
 
   const { data, mutate, total } = MenuRepository.hooks.useList({
     page: activePagination,
     pageSize: Number(paginationSize),
     search: searchQuery,
-    modul_id: selectedModul,
-    category_modul_id: selectedKategoriModul,
+    modul_id: selectedModul ?? undefined,
+    category_modul_id: selectedKategoriModul ?? undefined,
   });
 
   const { data: kategoriModulData } = CategoryModulRepository.hooks.useList({
@@ -43,8 +44,8 @@ export default function Page() {
 
   const onSelectedKategoriModul = (value: string | null) => {
     if (value === null) {
-      setSelectedKategoriModul(undefined);
-      setSelectedModul(undefined);
+      setSelectedKategoriModul(null);
+      setSelectedModul(null);
       push({
         pathname: 'menu',
       });
@@ -53,7 +54,7 @@ export default function Page() {
       push({
         pathname: 'menu',
         query: {
-          kategoriModul: value,
+          category_modul_id: value,
         },
       });
     }
@@ -61,11 +62,11 @@ export default function Page() {
 
   const onSelectedModul = (value: string | null) => {
     if (value === null) {
-      setSelectedModul(undefined);
+      setSelectedModul(null);
       push({
         pathname: 'menu',
         query: {
-          kategoriModul: selectedKategoriModul,
+          category_modul_id: selectedKategoriModul,
         },
       });
     } else {
@@ -73,8 +74,8 @@ export default function Page() {
       push({
         pathname: 'menu',
         query: {
-          kategoriModul: selectedKategoriModul,
-          modul: value,
+          category_modul_id: selectedKategoriModul,
+          modul_id: value,
         },
       });
     }
@@ -176,6 +177,7 @@ export default function Page() {
                     onChange={onChangeSearch}
                   />
                   <Select
+                    key={'category_modul'}
                     value={selectedKategoriModul}
                     placeholder="Pilih Kategori Modul"
                     searchable
@@ -187,6 +189,7 @@ export default function Page() {
                     onChange={onSelectedKategoriModul}
                   />
                   <Select
+                    key={selectedKategoriModul}
                     value={selectedModul}
                     placeholder="Pilih Modul"
                     searchable

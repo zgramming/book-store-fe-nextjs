@@ -10,7 +10,7 @@ const url = {
 
 const hooks = {
   useByRole(roleId?: string) {
-    const uri = roleId && isNumber(roleId) ? `${url.base}/by-role/${roleId}` : url.base;
+    const uri = roleId && isNumber(roleId) ? `${url.base}/by-role/${roleId}` : undefined;
     const {
       data: response,
       error,
@@ -34,7 +34,7 @@ const hooks = {
 
 const api = {
   create(data: AccessModulCreateDTO[]) {
-    return http.post(url.base, data, null);
+    return http.post(`${url.base}/create-bulk`, data, null);
   },
 };
 

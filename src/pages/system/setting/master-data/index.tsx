@@ -22,7 +22,7 @@ export default function Page() {
   const [activePagination, setPagination] = useState(1);
   const [sizePagination, setSizePagination] = useState<PaginationSize>('10');
   const [searchQuery, setSearchQuery] = useDebouncedState<string | undefined>(undefined, 500);
-  const [selectedCategoryID, setSelectedCategoryID] = useState<string | undefined>();
+  const [selectedCategoryID, setSelectedCategoryID] = useState<string | null>(null);
 
   const { data: dataMasterCategory } = MasterCategoryRepository.hooks.useList({
     page: 1,
@@ -38,22 +38,22 @@ export default function Page() {
     page: activePagination,
     pageSize: parseInt(sizePagination),
     search: searchQuery,
-    master_category_id: selectedCategoryID,
+    master_category_id: selectedCategoryID ?? undefined,
   });
 
   const onSelectedCategory = (value: string | null) => {
     if (value) {
       setSelectedCategoryID(value);
       push({
-        pathname: '/master-data',
+        pathname: 'master-data',
         query: {
           master_category_id: value,
         },
       });
     } else {
-      setSelectedCategoryID(undefined);
+      setSelectedCategoryID(null);
       push({
-        pathname: '/master-data',
+        pathname: 'master-data',
       });
     }
   };

@@ -5,7 +5,7 @@ export interface AccessModulByRoleEntity {
   dataNotExist: AccessModulByRoleNotExisting[];
 }
 
-interface AccessModulByRoleExisting {
+export interface AccessModulByRoleExisting {
   id: number;
   app_category_modul_id: number;
   icon_id: any;
@@ -20,7 +20,7 @@ interface AccessModulByRoleExisting {
   app_category_modul: AppCategoryModulExisting;
 }
 
-interface AppCategoryModulExisting {
+export interface AppCategoryModulExisting {
   id: number;
   icon_id: any;
   code: string;

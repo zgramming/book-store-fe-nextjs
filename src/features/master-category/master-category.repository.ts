@@ -5,6 +5,7 @@ import { MasterCategoryCreateDTO } from './dto/master-category-create.dto';
 import { MasterCategoryUpdateDTO } from './dto/master-category-update.dto';
 import { IBaseQueryParams } from '@/interface/base_query_params.interface';
 import { http } from '@/utils/http';
+import { isNumber } from '@/utils/function';
 
 interface UseListProps extends IBaseQueryParams {}
 
@@ -31,7 +32,7 @@ const hooks = {
     };
   },
   useById(id?: string) {
-    const uri = id ? `${url.base}/${id}` : null;
+    const uri = id && isNumber(id) ? `${url.base}/${id}` : null;
     const {
       data: response,
       error,

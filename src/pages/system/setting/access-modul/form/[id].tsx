@@ -2,6 +2,7 @@ import AccessModulTransferList, { TransferListDataType } from '@/components/Acce
 import AdminLayout from '@/components/layout/AdminLayout';
 import { AuthenticationContext } from '@/context/AuthenticationContext';
 import { AccessModulRepository } from '@/features/access-modul/access-modul.repository';
+import { AccessModulCreateDTO } from '@/features/access-modul/dto/access-modul-create.dto';
 import { RoleRepository } from '@/features/role/role.repository';
 import { getErrorMessageAxios } from '@/utils/function';
 import { Stack, Card, TextInput, Group, Button, LoadingOverlay } from '@mantine/core';
@@ -11,6 +12,8 @@ import { useRouter } from 'next/router';
 import { ReactNode, useContext, useEffect, useState } from 'react';
 
 Page.getLayout = (page: ReactNode) => <AdminLayout title="Form Access Modul">{page}</AdminLayout>;
+
+const delimiter = '|||';
 
 export default function Page() {
   const { jwtPayload } = useContext(AuthenticationContext);
@@ -50,17 +53,23 @@ export default function Page() {
 
       const userId = jwtPayload?.userId ?? 0;
       const [unselectedModul, selectedModul] = dataTransfer;
-      console.log({
-        unselectedModul,
-        selectedModul,
-        values,
+
+      const mapping: AccessModulCreateDTO[] = selectedModul.map((item) => {
+        const [appModulId, appCategoryModulId] = item.value.split(delimiter);
+
+        return {
+          role_id: dataGroup.id,
+          app_modul_id: +appModulId,
+          app_category_modul_id: +appCategoryModulId,
+          created_by: userId,
+        };
       });
 
-      const mapping = selectedModul.map((item) => ({
-        role_id: dataGroup.id,
-        app_modul_id: +item.value,
-        created_by: userId,
-      }));
+      console.log({
+        values,
+        unselectedModul,
+      });
+
       await AccessModulRepository.api.create(mapping);
 
       notifications.show({
@@ -80,11 +89,27 @@ export default function Page() {
     }
   };
 
+  // Set initial value for form
   useEffect(() => {
     if (!isReady) return;
 
-    if (dataSelectedModul) {
-      const dataSelected = dataSelectedModul.dataExists.map((item) => {
+    if (dataGroup) {
+      setFieldValue('code', dataGroup.code);
+      setFieldValue('name', dataGroup.name);
+    }
+
+    return () => {};
+  }, [dataGroup, isReady, setFieldValue]);
+
+  // Set initial value for transfer list
+  useEffect(() => {
+    if (!isReady) return;
+
+    if (dataSelectedModul.dataExists && dataSelectedModul.dataNotExists) {
+      const dataExist = dataSelectedModul.dataExists;
+      const dataNotExist = dataSelectedModul.dataNotExists;
+
+      const dataSelected = dataExist.map((item) => {
         const group = `${item.app_category_modul.name} (${item.app_category_modul.code})`;
         const dataModul = {
           value: `${item.id}`,
@@ -94,31 +119,26 @@ export default function Page() {
         return dataModul;
       });
 
-      const dataNotSelected = dataSelectedModul.dataNotExists.map((item: any) => {
-        const group = `${item.category.namaKategori} (${item.category.kodeKategori})`;
+      const dataNotSelected = dataNotExist.map((item) => {
+        const group = `${item.app_category_modul.name} (${item.app_category_modul.code})`;
+
+        // Format value = app_modul_id|||app_category_modul_id
+        const combinationValue = `${item.id}${delimiter}${item.app_category_modul_id}`;
         const dataModul = {
-          value: `${item.kodeModul}`,
-          label: item.namaModul,
+          value: combinationValue,
+          label: item.name,
           group,
         };
         return dataModul;
       });
-      console.log({
-        dataNotSelected,
-        dataSelected,
-      });
+
       const result: [TransferListDataType[], TransferListDataType[]] = [dataNotSelected ?? [], dataSelected ?? []];
 
       setDataTransfer(result);
     }
 
-    if (dataGroup) {
-      setFieldValue('code', dataGroup.code);
-      setFieldValue('name', dataGroup.name);
-    }
-
     return () => {};
-  }, [dataGroup, dataSelectedModul, isReady, setFieldValue]);
+  }, [dataSelectedModul.dataExists, dataSelectedModul.dataNotExists, isReady]);
 
   return (
     <>

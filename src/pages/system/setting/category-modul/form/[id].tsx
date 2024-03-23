@@ -18,7 +18,7 @@ export default function Page() {
       icon_id: undefined as number | undefined,
       code: '',
       name: '',
-      order: '',
+      order: '1',
       status: 'active',
     },
     validate: {
@@ -52,7 +52,7 @@ export default function Page() {
           icon_id: dataModulCategory.icon_id,
           code: values.code,
           name: values.name,
-          order: values.order,
+          order: +values.order,
           status: values.status,
           updated_by: jwtPayload?.userId || 0,
         });
@@ -61,7 +61,7 @@ export default function Page() {
           icon_id: undefined,
           code: values.code,
           name: values.name,
-          order: values.order,
+          order: +values.order,
           status: values.status,
           created_by: jwtPayload?.userId || 0,
         });

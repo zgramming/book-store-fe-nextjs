@@ -48,11 +48,11 @@ export default function Page() {
       });
 
       const body = {
-        app_category_modul_id: values.category_modul_id,
-        icon_id: values.icon,
+        app_category_modul_id: +values.app_category_modul_id,
+        icon_id: values.icon ? +values.icon : undefined,
         code: values.code,
         name: values.name,
-        order: values.order,
+        order: +values.order,
         status: values.status,
         created_by: jwtPayload?.userId || 0,
       };

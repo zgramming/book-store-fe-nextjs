@@ -20,7 +20,11 @@ export default function Page() {
   const [paginationSize, setPaginationSize] = useState<PaginationSize>('10');
   const [searchQuery, setSearchQuery] = useDebouncedState<string | undefined>(undefined, 500);
 
-  const { data, total } = RoleRepository.hooks.useList({
+  const {
+    data,
+    total,
+    mutate: reloadGroup,
+  } = RoleRepository.hooks.useList({
     page: activePagination,
     pageSize: Number(paginationSize),
     search: searchQuery,
@@ -38,7 +42,7 @@ export default function Page() {
 
   const onAddHandler = () => {
     push({
-      pathname: 'role/form',
+      pathname: 'role/form/new',
     });
   };
 
@@ -56,6 +60,8 @@ export default function Page() {
         color: 'green',
         message: `Data dengan id ${id} berhasil dihapus`,
       });
+
+      reloadGroup();
     } catch (error) {
       const message = getErrorMessageAxios(error);
       notifications.show({
