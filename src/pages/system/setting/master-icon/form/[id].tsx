@@ -13,7 +13,7 @@ import { ReactNode, useContext, useEffect } from 'react';
 export default function Page() {
   const { jwtPayload } = useContext(AuthenticationContext);
   const { back, query } = useRouter();
-  const { id, action } = query;
+  const { id } = query;
 
   const { data: dataMasterIcon } = MasterIconRepository.hooks.useById(id as string | undefined);
   const form = useForm({
@@ -87,8 +87,7 @@ export default function Page() {
 
   const onSubmit = async (values: any) => {
     try {
-      const isEdit = action === 'edit' && dataMasterIcon;
-      if (isEdit) {
+      if (dataMasterIcon) {
         await onUpdate(values);
       } else {
         await onCreate(values);
