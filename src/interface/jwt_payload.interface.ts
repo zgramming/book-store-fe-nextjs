@@ -1,8 +1,8 @@
 export interface IJWTPayload {
-  userId: string;
+  userId: number;
   username: string;
-  kodeGroup: string;
-  sub: number;
-  iat: number;
-  exp: number;
+  roleId: string;
+  sub?: number;
+  iat?: number;
+  exp?: number;
 }

@@ -8,7 +8,7 @@ import { AppShell, Box, Burger, Button, ScrollArea, Stack } from '@mantine/core'
 import useBreakpoint from '@/hooks/useBreakpoint';
 import Image from 'next/image';
 import Link from 'next/link';
-import Logo from '@images/logo.png';
+import Logo from '@/images/logo.png';
 import { IconChevronLeft } from '@tabler/icons-react';
 import NavbarMenuItem from './NavbarMenuItem';
 import { SidebarLayoutContext } from '@/context/SidebarLayoutContext';
@@ -96,7 +96,7 @@ const LogoComponent = () => {
       <Image
         src={Logo}
         alt="Logo"
-        width={isMobile ? 150 : 250}
+        width={isMobile ? 50 : 100}
         style={{
           objectFit: 'cover',
         }}

@@ -21,7 +21,7 @@ type NavbarMenuItemProps = {
 
 const NavbarMenuItem = ({ id, path, name, childrenMenu }: NavbarMenuItemProps) => {
   const { toggleSidebar } = useContext(SidebarLayoutContext);
-  const { pathname } = useRouter();
+  const { pathname, isReady } = useRouter();
   const [isOpenMoreMenu, { toggle: toggleMoreMenu }] = useDisclosure(true);
   const subMenus = childrenMenu ?? [];
   const isHaveChild = subMenus.length > 0;
@@ -32,10 +32,12 @@ const NavbarMenuItem = ({ id, path, name, childrenMenu }: NavbarMenuItemProps) =
   });
 
   const conditionalHref = () => {
+    if (!isReady) return '#';
+
     let result = '#';
 
     if (!isHaveChild && path) {
-      result = `/${path}`;
+      result = `${path}`;
     }
 
     return result;

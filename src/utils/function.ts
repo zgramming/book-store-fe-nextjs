@@ -135,6 +135,10 @@ const getErrorMessageAxios = (error: any) => {
   return message;
 };
 
+const isNumber = (value: any) => {
+  return !isNaN(value);
+};
+
 export {
   sleep,
   convertRoutePathToArray,
@@ -144,4 +148,5 @@ export {
   getErrorMessageAxios,
   numberInputParser,
   numberInputFormatter,
+  isNumber,
 };
