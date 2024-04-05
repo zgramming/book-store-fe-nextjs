@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { ParsedUrlQuery } from 'querystring';
 import { ReactNode, useContext } from 'react';
 
-import { convertRoutePathToArray, getMenuByPath } from '@/utils/function';
+import { convertRoutePathToArray } from '@/utils/function';
 import { AppShell, Box, Burger, Button, ScrollArea, Stack } from '@mantine/core';
 
 import useBreakpoint from '@/hooks/useBreakpoint';
@@ -12,8 +12,8 @@ import Logo from '@/images/logo.png';
 import { IconChevronLeft } from '@tabler/icons-react';
 import NavbarMenuItem from './NavbarMenuItem';
 import { SidebarLayoutContext } from '@/context/SidebarLayoutContext';
-import AccountAvatar from '../AccountAvatar';
 import { useRouter } from 'next/router';
+import { dummyMenu } from '@/utils/dummy_data';
 
 type AdminLayoutProps = {
   children: ReactNode;
@@ -115,18 +115,12 @@ const HeaderLayout = () => {
       <div className="flex flex-row items-center h-full px-5 lg:px-0">
         <Burger opened={openedSidebar} onClick={() => toggleSidebar()} size="sm" />
         <LogoComponent />
-        <div className="grow flex flex-row items-center justify-end">
-          <AccountAvatar />
-        </div>
+        <div className="grow flex flex-row items-center justify-end"></div>
       </div>
     );
   }
 
-  return (
-    <div className="flex flex-row justify-end items-center h-full px-5 ">
-      <AccountAvatar />
-    </div>
-  );
+  return <div className="flex flex-row justify-end items-center h-full px-5 "></div>;
 };
 
 export default function AdminLayout({ children, breadcrumbsOverride, title }: AdminLayoutProps) {
@@ -134,7 +128,6 @@ export default function AdminLayout({ children, breadcrumbsOverride, title }: Ad
 
   const { pathname, query, back } = useRouter();
   // const { menus } = getInformationModulAndMenu(pathname);
-  const menus = getMenuByPath(pathname);
 
   const routePath = convertRoutePathToArray(pathname).map((item) => item.toUpperCase());
 
@@ -166,7 +159,7 @@ export default function AdminLayout({ children, breadcrumbsOverride, title }: Ad
             </div>
           </AppShell.Section>
           <AppShell.Section grow component={ScrollArea}>
-            {menus.map((item, index) => {
+            {dummyMenu.map((item, index) => {
               const mappingChildrenMenu =
                 item.child?.map((subMenu, indexSubmenu) => ({
                   id: indexSubmenu,

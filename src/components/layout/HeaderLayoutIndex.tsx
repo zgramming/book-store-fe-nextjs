@@ -1,7 +1,6 @@
 import Logo from '@/images/logo.png';
 import Image from 'next/image';
 import Link from 'next/link';
-import AccountAvatar from '../AccountAvatar';
 import useBreakpoint from '@/hooks/useBreakpoint';
 
 type HeaderLayoutIndexProps = {
@@ -47,9 +46,7 @@ const HeaderLayoutIndex = ({ useShadow = false, currentModule }: HeaderLayoutInd
           )}
         </div>
       )}
-      <div className="basis-0 grow flex flex-col justify-center items-end">
-        <AccountAvatar />
-      </div>
+      <div className="basis-0 grow flex flex-col justify-center items-end"></div>
     </div>
   );
 };

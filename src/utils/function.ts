@@ -1,45 +1,10 @@
-import { IAccessGroupOnlyMenu } from '@/interface/access-group-only-menu.interface';
 import axios, { AxiosError } from 'axios';
 import dayjs from 'dayjs';
-import { KEY_LOCALSTORAGE_ACCESS_GROUP } from './constant';
 require('dayjs/locale/id');
 
 type IsSideMenuActiveProps = {
   currentPath: string;
   link: string;
-};
-
-export const getMenuByPath = (path: string) => {
-  const accessGroupLocalStorage = localStorage.getItem(KEY_LOCALSTORAGE_ACCESS_GROUP);
-  if (!accessGroupLocalStorage) {
-    return [];
-  }
-
-  const menus = JSON.parse(accessGroupLocalStorage) as IAccessGroupOnlyMenu;
-
-  const splitPath = path.split('/').filter((item) => item !== '');
-  const [firstPath, secondPath, thirdPath] = splitPath;
-
-  const menuMatch = menus.filter((item) => {
-    const menuPath = item.path.split('/').filter((item) => item !== '');
-    const lengthMenuPath = menuPath.length;
-    const [satu, dua, tiga] = menuPath;
-
-    if (lengthMenuPath > 3 && lengthMenuPath <= 10) {
-      return satu === firstPath && dua === secondPath && tiga === thirdPath;
-    }
-
-    if (lengthMenuPath === 3) {
-      return satu === firstPath && dua === secondPath;
-    }
-
-    if (lengthMenuPath === 2) {
-      return satu === firstPath;
-    }
-
-    return false;
-  });
-  return menuMatch;
 };
 
 const sleep = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
