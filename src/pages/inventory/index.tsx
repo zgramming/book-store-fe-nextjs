@@ -18,9 +18,8 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDebouncedState, useDisclosure } from '@mantine/hooks';
-import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconBuildingWarehouse, IconEditCircle, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
+import { IconBuildingWarehouse, IconEditCircle, IconPlus, IconSearch } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
@@ -170,43 +169,6 @@ export default function Page() {
     });
   };
 
-  const onDeleteHandler = async (id: string) => {
-    try {
-      await InventoryRepository.api.delete(id);
-      notifications.show({
-        title: 'Success',
-        color: 'green',
-        message: `Data dengan id ${id} berhasil dihapus`,
-      });
-      reloadData();
-    } catch (error) {
-      const message = getErrorMessageAxios(error);
-      notifications.show({
-        title: 'Error',
-        message: message,
-        color: 'red',
-      });
-    }
-  };
-
-  const onDeleteButton = (id: string) => {
-    modals.openConfirmModal({
-      title: 'Konfirmasi',
-      children: 'Apakah anda yakin ingin menghapus data ini?',
-      labels: {
-        cancel: 'Batal',
-        confirm: 'Hapus',
-      },
-      confirmProps: {
-        color: 'red',
-      },
-      onConfirm: () => onDeleteHandler(id),
-      onCancel: () => {
-        alert('Cancel');
-      },
-    });
-  };
-
   return (
     <>
       <Card withBorder>
@@ -283,16 +245,6 @@ export default function Page() {
                                 onClick={() => onEditButton(`${item.id}`)}
                               >
                                 <IconEditCircle size={16} />
-                              </Button>
-                            </Tooltip>
-                            <Tooltip label="Delete" position="top">
-                              <Button
-                                variant="outline"
-                                size="xs"
-                                color="red"
-                                onClick={() => onDeleteButton(`${item.id}`)}
-                              >
-                                <IconTrash size={16} />
                               </Button>
                             </Tooltip>
                             <Tooltip label="Increase/Decrease Stock" position="right">
