@@ -215,6 +215,7 @@ export default function Page() {
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>NO</Table.Th>
+                    <Table.Th>AUTHOR</Table.Th>
                     <Table.Th>BOOK</Table.Th>
                     <Table.Th>LOCATION</Table.Th>
                     <Table.Th>INITIAL STOCK</Table.Th>
@@ -229,6 +230,7 @@ export default function Page() {
                     return (
                       <Table.Tr key={item.id}>
                         <Table.Td>{index + 1}</Table.Td>
+                        <Table.Td>{item.book.author}</Table.Td>
                         <Table.Td>{item.book.title}</Table.Td>
                         <Table.Td>{item.location}</Table.Td>
                         <Table.Td>{item.stock}</Table.Td>
