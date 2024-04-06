@@ -2,11 +2,11 @@ import PaginationComponent, { PaginationSize } from '@/components/PaginationComp
 import AdminLayout from '@/components/layout/AdminLayout';
 import { MasterStudentRepository } from '@/features/master-student/master-student.repository';
 import { getErrorMessageAxios, readableDate } from '@/utils/function';
-import { Button, Card, Flex, Grid, Group, LoadingOverlay, Stack, Table, TextInput } from '@mantine/core';
+import { Button, Card, Flex, Grid, Group, LoadingOverlay, Stack, Table, TextInput, Tooltip } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconPlus, IconSearch } from '@tabler/icons-react';
+import { IconEditCircle, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
@@ -153,18 +153,27 @@ export default function Page() {
                         <Table.Td>{readableDate(item.created_at)}</Table.Td>
                         <Table.Td>{readableDate(item.updated_at)}</Table.Td>
                         <Table.Td>
-                          <Group>
-                            <Button variant="outline" size="xs" color="blue" onClick={() => onEditButton(`${item.id}`)}>
-                              Edit
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="xs"
-                              color="red"
-                              onClick={() => onDeleteButton(`${item.id}`)}
-                            >
-                              Hapus
-                            </Button>
+                          <Group gap={'md'}>
+                            <Tooltip label="Edit" position="left">
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                color="blue"
+                                onClick={() => onEditButton(`${item.id}`)}
+                              >
+                                <IconEditCircle size={16} />
+                              </Button>
+                            </Tooltip>
+                            <Tooltip label="Delete" position="top">
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                color="red"
+                                onClick={() => onDeleteButton(`${item.id}`)}
+                              >
+                                <IconTrash size={16} />
+                              </Button>
+                            </Tooltip>
                           </Group>
                         </Table.Td>
                       </Table.Tr>

@@ -1,8 +1,9 @@
 import PaginationComponent, { PaginationSize } from '@/components/PaginationComponent';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { TransactionRepository } from '@/features/transaction/transaction.repository';
-import { readableDate } from '@/utils/function';
+import { getErrorMessageAxios, readableDate } from '@/utils/function';
 import {
+  ActionIcon,
   Badge,
   Button,
   Card,
@@ -15,9 +16,12 @@ import {
   Stack,
   Table,
   TextInput,
+  Tooltip,
 } from '@mantine/core';
 import { useDebouncedState, useDisclosure } from '@mantine/hooks';
-import { IconPlus, IconSearch } from '@tabler/icons-react';
+import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
+import { IconPlus, IconReceiptRefund, IconSearch } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
@@ -48,6 +52,7 @@ const ModalDetailTransaction: React.FC<ModalDetailTransactionProps> = ({ id, onC
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>NO</Table.Th>
+                <Table.Th>AUTHOR</Table.Th>
                 <Table.Th>BOOK NAME</Table.Th>
                 <Table.Th>QUANTITY</Table.Th>
                 <Table.Th>STATUS</Table.Th>
@@ -58,6 +63,7 @@ const ModalDetailTransaction: React.FC<ModalDetailTransactionProps> = ({ id, onC
                 return (
                   <Table.Tr key={item.id}>
                     <Table.Td>{index + 1}</Table.Td>
+                    <Table.Td>{item.book.author}</Table.Td>
                     <Table.Td>{item.book.title}</Table.Td>
                     <Table.Td>
                       <b>{item.qty}</b>
@@ -97,12 +103,50 @@ export default function Page() {
   const {
     data: transactionData,
     isLoading,
+    mutate: reloadTransaction,
     total,
   } = TransactionRepository.hooks.useList({
     page: activePagination,
     limit: parseInt(sizePagination),
     student_name: searchQuery,
   });
+
+  const onReturnHandler = async (id: string) => {
+    try {
+      await TransactionRepository.api.returnBook(id);
+
+      notifications.show({
+        title: 'Success',
+        message: 'Book has been returned successfully',
+        color: 'green',
+      });
+
+      reloadTransaction();
+    } catch (error) {
+      const message = getErrorMessageAxios(error);
+      notifications.show({
+        title: 'Error',
+        message,
+        color: 'red',
+      });
+    }
+  };
+
+  const onReturn = async (id: string) => {
+    modals.openConfirmModal({
+      title: 'Confirmation',
+      children: `Are you sure want to confirm to return this book?`,
+      labels: {
+        cancel: 'Cancel',
+        confirm: 'Return',
+      },
+      confirmProps: {
+        color: 'green',
+      },
+      onConfirm: () => onReturnHandler(id),
+      onCancel: () => {},
+    });
+  };
 
   const onOpenModalDetailTransaction = (id: number) => {
     setSelectedTransactionId(id);
@@ -182,6 +226,7 @@ export default function Page() {
                     <Table.Th>TRX</Table.Th>
                     <Table.Th>CREATED AT</Table.Th>
                     <Table.Th>UPDATED AT</Table.Th>
+                    <Table.Th>KONTROL</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <tbody>
@@ -199,6 +244,25 @@ export default function Page() {
                         </Table.Td>
                         <Table.Td>{readableDate(item.created_at)}</Table.Td>
                         <Table.Td>{readableDate(item.updated_at)}</Table.Td>
+                        <Table.Td>
+                          <Group gap={'md'} justify="center">
+                            {item.status === 'loaned' && (
+                              <Tooltip label="Return Book" position="left">
+                                {/* <Button variant="outline" size="sm" onClick={() => onReturn(`${item.id}`)}>
+                                  <IconReceiptRefund size="1rem" />
+                                </Button> */}
+                                <ActionIcon size={'lg'} color="blue" onClick={() => onReturn(`${item.id}`)}>
+                                  <IconReceiptRefund />
+                                </ActionIcon>
+                              </Tooltip>
+                            )}
+                            {item.status === 'returned' && (
+                              <Badge color="green" variant="filled">
+                                Returned
+                              </Badge>
+                            )}
+                          </Group>
+                        </Table.Td>
                       </Table.Tr>
                     );
                   })}

@@ -14,6 +14,7 @@ import { ReactNode, useEffect, useState } from 'react';
 
 interface SelectedItem {
   book_id: string;
+  book_author: string;
   book_title: string;
   quantity: number;
 }
@@ -236,6 +237,7 @@ export default function Page() {
                         <Table.Thead>
                           <Table.Tr>
                             <Table.Th>NO</Table.Th>
+                            <Table.Th>AUTHOR</Table.Th>
                             <Table.Th>BOOK</Table.Th>
                             <Table.Th>LOCATION</Table.Th>
                             <Table.Th>INITIAL STOCK</Table.Th>
@@ -248,6 +250,8 @@ export default function Page() {
                             return (
                               <Table.Tr key={item.id}>
                                 <Table.Td>{index + 1}</Table.Td>
+
+                                <Table.Td>{item.book.author}</Table.Td>
                                 <Table.Td>{item.book.title}</Table.Td>
                                 <Table.Td>{item.location}</Table.Td>
                                 <Table.Td>{item.stock}</Table.Td>
@@ -262,6 +266,7 @@ export default function Page() {
                                         onAddItem({
                                           book_id: `${item.book.id}`,
                                           book_title: item.book.title,
+                                          book_author: item.book.author,
                                           quantity: 1,
                                         })
                                       }
@@ -277,6 +282,7 @@ export default function Page() {
                                         onRemoveItem({
                                           book_id: `${item.book.id}`,
                                           book_title: item.book.title,
+                                          book_author: item.book.author,
                                           quantity: 1,
                                         })
                                       }
@@ -312,6 +318,9 @@ export default function Page() {
                       {selectedItems.map((item, index) => {
                         return (
                           <Card key={item.book_id} withBorder>
+                            <Card.Section withBorder inheritPadding py={'sm'} mb={'sm'}>
+                              <b>{item.book_author}</b>
+                            </Card.Section>
                             <Group justify="space-between">
                               <div>{`${index + 1}. ${item.book_title}`}</div>
                               <Badge color="blue">x{item.quantity}</Badge>

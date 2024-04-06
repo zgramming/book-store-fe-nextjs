@@ -70,7 +70,7 @@ const api = {
     return http.post(url.base, data, null);
   },
   returnBook: async (id: string) => {
-    return http.put(`${url.base}/${id}/return`, null, null);
+    return http.put(`${url.base}/${id}/return`, {}, null);
   },
 };
 

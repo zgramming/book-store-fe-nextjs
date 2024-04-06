@@ -105,7 +105,10 @@ export default function Page() {
                   <Select
                     label="Book"
                     placeholder="Choose book"
-                    data={masterBookList.map((item) => ({ value: `${item.id}`, label: item.title }))}
+                    data={masterBookList.map((item) => ({
+                      value: `${item.id}`,
+                      label: `${item.author} - ${item.title}`,
+                    }))}
                     nothingFoundMessage="No options"
                     searchable
                     clearable

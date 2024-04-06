@@ -8,8 +8,8 @@ interface UseListParams extends IBaseQueryParams {
   name_student?: string;
   book_id?: string;
   book_title?: string;
-  date_loan?: Date;
-  date_return?: Date;
+  date_loan?: string;
+  date_return?: string;
   long_loan_in_days?: number;
 }
 
@@ -18,7 +18,7 @@ const url = {
 };
 
 const hooks = {
-  useList: async ({
+  useList: ({
     page = 1,
     limit = 100,
     nim,
@@ -74,4 +74,7 @@ const hooks = {
 
 const api = {};
 
-export { url, hooks, api };
+export const HistoryTransactionRepository = {
+  hooks,
+  api,
+};
